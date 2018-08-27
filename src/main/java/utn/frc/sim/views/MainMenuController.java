@@ -52,7 +52,7 @@ public class MainMenuController {
     private Optional<UniformController> uniformController;
 
     @FXML
-    private Pane pnlParameters;
+    private AnchorPane pnlParameters;
 
     @FXML
     private ComboBox<String> cmbDistribution;

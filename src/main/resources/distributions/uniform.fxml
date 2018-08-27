@@ -6,9 +6,9 @@
 
 <AnchorPane prefHeight="69.0" prefWidth="234.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="utn.frc.sim.views.distributions.UniformController">
     <children>
-        <Spinner fx:id="spnA" editable="true" layoutX="95.0" />
-        <Spinner fx:id="spnB" editable="true" layoutX="95.0" layoutY="31.0" />
-        <Label layoutX="65.0" layoutY="4.0" prefHeight="17.0" prefWidth="17.0" text="a:" />
-        <Label layoutX="64.0" layoutY="35.0" prefHeight="17.0" prefWidth="17.0" text="b:" />
+        <Spinner fx:id="spnA" editable="true" layoutX="85.0" />
+        <Spinner fx:id="spnB" editable="true" layoutX="85.0" layoutY="30.0" />
+        <Label layoutX="60.0" layoutY="4.0" prefHeight="17.0" prefWidth="17.0" text="a:" />
+        <Label layoutX="59.0" layoutY="33.0" prefHeight="17.0" prefWidth="17.0" text="b:" />
     </children>
 </AnchorPane>
