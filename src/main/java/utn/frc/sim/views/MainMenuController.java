@@ -8,12 +8,10 @@ import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
-import javafx.scene.control.ComboBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.Spinner;
-import javafx.scene.control.SpinnerValueFactory;
+import javafx.scene.control.*;
 import javafx.scene.layout.AnchorPane;
-import javafx.scene.layout.Pane;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import utn.frc.sim.generators.distributions.DistributionRandomGenerator;
@@ -58,9 +56,6 @@ public class MainMenuController {
     private ComboBox<String> cmbDistribution;
 
     @FXML
-    private ListView<Double> listNumbers;
-
-    @FXML
     private Spinner<Integer> spnAmountOfNumbers;
 
     @FXML
@@ -68,6 +63,10 @@ public class MainMenuController {
 
     @FXML
     private BarChart<String, Number> grpGraficoDeFrecuencias;
+
+    @FXML
+    private Hyperlink lblShowTable;
+
 
     /**
      * Metodo que se ejectua luego de la inicializacion de los
@@ -151,6 +150,12 @@ public class MainMenuController {
         }
     }
 
+    @FXML
+    void verTablaClick(ActionEvent event) {
+        final Stage dialog = new Stage();
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.show();
+    }
 
     /**
      * Metodo que maneja la creacion de los numeros y el
@@ -165,7 +170,7 @@ public class MainMenuController {
                 .collect(Collectors.toList());
         List<Interval> intervals = creator.getIntervals();
 
-        setListToListView(numbers);
+        //setListToListView(numbers);
         plotIntervalsInGraph(intervals);
     }
 
@@ -173,11 +178,11 @@ public class MainMenuController {
      * Metodo que toma una lista de numeros y los
      * setea en la lista.
      */
-    private void setListToListView(List<Double> listToAdd) {
+    /*private void setListToListView(List<Double> listToAdd) {
         ObservableList<Double> items = listNumbers.getItems();
         items.clear();
         items.addAll(listToAdd);
-    }
+    }*/
 
     /**
      * Metodo que toma una lista de intervalos y las plotea en el grafico.
@@ -217,7 +222,7 @@ public class MainMenuController {
      */
     private void setExponentialPanel() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/distributions/expneg.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/distributions/expneg.fxml"));
             pnlParameters.getChildren().setAll((AnchorPane) loader.load());
             expNegController = Optional.of(loader.getController());
             uniformController = Optional.empty();
@@ -234,7 +239,7 @@ public class MainMenuController {
      */
     private void setUniformPanel() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/distributions/uniform.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/distributions/uniform.fxml"));
             pnlParameters.getChildren().setAll((AnchorPane) loader.load());
             uniformController = Optional.of(loader.getController());
             normalController = Optional.empty();
@@ -251,7 +256,7 @@ public class MainMenuController {
      */
     private void setNormalPanel() {
         try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/distributions/normal.fxml"));
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/distributions/normal.fxml"));
             pnlParameters.getChildren().setAll((AnchorPane) loader.load());
             normalController = Optional.of(loader.getController());
             uniformController = Optional.empty();
