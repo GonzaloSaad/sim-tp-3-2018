@@ -2,6 +2,7 @@ package utn.frc.sim.generators.intervals;
 
 import org.apache.commons.lang3.StringUtils;
 import utn.frc.sim.util.MathUtils;
+import utn.frc.sim.util.SimStringUtils;
 
 public class Interval {
     private double from;
@@ -19,7 +20,7 @@ public class Interval {
     }
 
     public boolean includes(double number) {
-        return from <= number && number <= to;
+        return from <= number && number < to;
     }
 
     public void addOccurrence() {
@@ -39,30 +40,24 @@ public class Interval {
         return "Interval{" +
                 "from=" + getDisplay(from) +
                 ", to=" + getDisplay(to) +
-                ", observedFrequency=" + observedFrequency +
-                ", expectedFrequency=" + expectedFrequency +
+                ", observedFrequency=" + getDisplay(observedFrequency) +
+                ", expectedFrequency=" + getDisplay(expectedFrequency) +
                 '}';
     }
 
-    public String getDisplay(double number) {
-        return StringUtils
-                .rightPad(getDoubleString(number), 6, '0');
-
+    private String getDisplay(double value) {
+        return SimStringUtils.getDoubleStringFormat(value, 4);
     }
 
     private String getDoubleString(double number) {
         return Double.toString((MathUtils.round(number, 4)));
     }
 
-    public double getResult() {
-        return Math.pow(observedFrequency - expectedFrequency, 2) / expectedFrequency;
-    }
-
-    public String getDisplayableResult() {
-        return getDisplay(getResult());
-    }
-
     public String getPlottableInterval() {
         return getDisplay((from + to) / 2);
+    }
+
+    public double getResult() {
+        return Math.pow(observedFrequency - expectedFrequency, 2) / expectedFrequency;
     }
 }

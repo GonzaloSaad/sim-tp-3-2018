@@ -2,6 +2,7 @@ package utn.frc.sim.util;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.text.DecimalFormat;
 
 public class MathUtils {
     public static double round(double value, int places) {
@@ -11,4 +12,5 @@ public class MathUtils {
         bd = bd.setScale(places, RoundingMode.HALF_UP);
         return bd.doubleValue();
     }
+
 }

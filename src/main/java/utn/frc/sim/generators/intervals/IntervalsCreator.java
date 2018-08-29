@@ -1,7 +1,5 @@
 package utn.frc.sim.generators.intervals;
 
-import org.apache.commons.math3.analysis.function.Max;
-import utn.frc.sim.generators.RandomGenerator;
 import utn.frc.sim.generators.distributions.DistributionRandomGenerator;
 import utn.frc.sim.generators.distributions.DistributionValueGenerator;
 
@@ -12,7 +10,7 @@ public class IntervalsCreator {
 
     private List<Interval> intervals;
     private List<Double> numbers;
-
+    private static final double DOUBLE_MAX_INTERVAL_ADJUSTMENT = 0.000000000001;
 
     public IntervalsCreator() {
     }
@@ -39,6 +37,8 @@ public class IntervalsCreator {
                 .reduce((d1, d2) -> d2 > d1 ? d2 : d1)
                 .orElseThrow(IllegalArgumentException::new);
 
+        maxValue += DOUBLE_MAX_INTERVAL_ADJUSTMENT;
+
         double minValue = numbers.stream()
                 .reduce((d1, d2) -> d2 < d1 ? d2 : d1)
                 .orElseThrow(IllegalArgumentException::new);
@@ -63,10 +63,7 @@ public class IntervalsCreator {
                 to = minValue + step * (i + 1);
             }
 
-            double expectedFrequency = distributionValues.get(from, to);
-
-
-            Interval interval = new Interval(from, to, expectedFrequency, amountOfNumbers);
+            Interval interval = new Interval(from, to, distributionValues.get(from, to), amountOfNumbers);
             intervals.add(interval);
         }
 
@@ -74,9 +71,7 @@ public class IntervalsCreator {
                 .filter(it -> it.includes(number))
                 .findFirst()
                 .ifPresent(Interval::addOccurrence));
-
     }
-
 
     public List<Double> getNumbers() {
         return numbers;
