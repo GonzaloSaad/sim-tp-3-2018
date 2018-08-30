@@ -1,9 +1,6 @@
 package utn.frc.sim.views.popups;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
@@ -25,7 +22,7 @@ public class ChiSquaredTableViewController {
     private TitledPane pnlChiSquare;
 
     @FXML
-    public void initialize(){
+    public void initialize() {
         initializeIntervalTableView();
     }
 
@@ -37,7 +34,7 @@ public class ChiSquaredTableViewController {
         tblIntervalTable = new TableView<>();
 
         TableColumn<Interval, String> colIntervalo = new TableColumn<>(TABLE_VIEW_INTERVAL_COLUMN_TITLE);
-        colIntervalo.setCellValueFactory(e -> new SimpleStringProperty(e.getValue().displayName()));
+        colIntervalo.setCellValueFactory(e -> new SimpleStringProperty(e.getValue().getDisplayableName()));
 
         TableColumn<Interval, String> colFE = new TableColumn<>(TABLE_VIEW_EXPECTED_FREQUENCY_COLUMN_LABEL);
         colFE.setCellValueFactory(e -> new SimpleStringProperty(e.getValue().getDisplayableExpectedFrequency()));

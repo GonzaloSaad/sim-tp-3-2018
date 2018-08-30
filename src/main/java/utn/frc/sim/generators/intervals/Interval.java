@@ -1,8 +1,6 @@
 package utn.frc.sim.generators.intervals;
 
-import org.apache.commons.lang3.StringUtils;
-import utn.frc.sim.util.MathUtils;
-import utn.frc.sim.util.SimStringUtils;
+import utn.frc.sim.util.DoubleUtils;
 
 public class Interval {
     private double from;
@@ -35,42 +33,42 @@ public class Interval {
         return expectedFrequency;
     }
 
-    public String displayName() {
-        return getDisplay(from) + "-" + getDisplay(to);
+    public double getResult() {
+        return Math.pow(observedFrequency - expectedFrequency, 2) / expectedFrequency;
     }
 
     @Override
     public String toString() {
         return "Interval{" +
-                "from=" + getDisplay(from) +
-                ", to=" + getDisplay(to) +
-                ", observedFrequency=" + getDisplay(observedFrequency) +
-                ", expectedFrequency=" + getDisplay(expectedFrequency) +
+                "from=" + getDisplayable(from) +
+                ", to=" + getDisplayable(to) +
+                ", observedFrequency=" + getDisplayable(observedFrequency) +
+                ", expectedFrequency=" + getDisplayable(expectedFrequency) +
                 '}';
     }
 
-    public double getResult() {
-        return Math.pow(observedFrequency - expectedFrequency, 2) / expectedFrequency;
+    public String getDisplayableName() {
+        return getDisplayable(from) + "-" + getDisplayable(to);
     }
 
     public String getDisplayableInterval() {
-        return getDisplay((from + to) / 2);
+        return getDisplayable((from + to) / 2);
     }
 
-    public String getDisplayableExpectedFrequency(){
-        return getDisplay(expectedFrequency);
+    public String getDisplayableExpectedFrequency() {
+        return getDisplayable(expectedFrequency);
     }
 
-    public String getDisplayableObservedFrequency(){
-        return getDisplay(observedFrequency);
+    public String getDisplayableObservedFrequency() {
+        return getDisplayable(observedFrequency);
     }
 
     public String getDisplayableResult() {
-        return getDisplay(getResult());
+        return getDisplayable(getResult());
     }
 
-    private String getDisplay(double value) {
-        return SimStringUtils.getDoubleStringFormat(value, 4);
+    private String getDisplayable(double value) {
+        return DoubleUtils.getDoubleStringFormat(value, 4);
     }
 
 }

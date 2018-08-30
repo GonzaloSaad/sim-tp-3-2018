@@ -23,8 +23,7 @@ import utn.frc.sim.generators.distributions.NormalDistributionGenerator;
 import utn.frc.sim.generators.distributions.UniformDistributionGenerator;
 import utn.frc.sim.generators.intervals.Interval;
 import utn.frc.sim.generators.intervals.IntervalsCreator;
-import utn.frc.sim.util.MathUtils;
-import utn.frc.sim.util.SimStringUtils;
+import utn.frc.sim.util.DoubleUtils;
 import utn.frc.sim.views.distributions.ExpNegController;
 import utn.frc.sim.views.distributions.NormalController;
 import utn.frc.sim.views.distributions.UniformController;
@@ -275,10 +274,16 @@ public class MainMenuController {
         loadAndSetListView();
     }
 
+    /**
+     * Metodo que carga la lista de numeros.
+     */
     private void loadAndSetListView() {
         loadListView().ifPresent(listController -> listController.setListToListView(numbers));
     }
 
+    /**
+     * Metodo que carga la tabla de chi cuadrado.
+     */
     private void loadAndSetTableView() {
         loadTableView().ifPresent(tableController -> tableController.setItemsInTableView(intervals));
     }
@@ -292,7 +297,7 @@ public class MainMenuController {
 
         numbers = creator.getNumbers()
                 .stream()
-                .map(aDouble -> MathUtils.round(aDouble, 4))
+                .map(aDouble -> DoubleUtils.round(aDouble, 4))
                 .collect(Collectors.toList());
         intervals = creator.getIntervals();
 
@@ -302,6 +307,10 @@ public class MainMenuController {
         setHyperlinkEnable();
     }
 
+    /**
+     * Metodo que activa los hiperlinks de tabla y lista
+     * y los deja como nunca visitados.
+     */
     private void setHyperlinkEnable() {
         lblShowList.setVisited(Boolean.FALSE);
         lblShowList.disableProperty().setValue(Boolean.FALSE);
@@ -309,11 +318,20 @@ public class MainMenuController {
         lblShowTable.disableProperty().setValue(Boolean.FALSE);
     }
 
+    /**
+     * Metodo que setea todos los labels de resultado y el
+     * label de distribucion.
+     */
     private void setResultLabels(List<Interval> intervals) {
         setDistributionLabel();
         setResultsDisplay(intervals);
     }
 
+    /**
+     * Metodo que segun una lista de intervalos, genera
+     * los labels de resultados (chi actual, chi esperado e
+     * Hipotesis)
+     */
     private void setResultsDisplay(List<Interval> intervals) {
         double actualChi = intervals.stream().mapToDouble(Interval::getResult).sum();
         double expectedChi = getChiSquaredTableValueFromParameters();
@@ -323,20 +341,32 @@ public class MainMenuController {
         setHypothesis(actualChi < expectedChi);
     }
 
-    private void setHypothesis(boolean accepted) {
-        if (accepted) {
+    /**
+     * Metodo que setea el valor del label de hipostesis segun
+     * se rechazo o no.
+     */
+    private void setHypothesis(boolean notRejected) {
+        if (notRejected) {
             lblHypothesis.setText(HO_ACCEPTED);
         } else {
             lblHypothesis.setText(HO_REJECTED);
         }
     }
 
+    /**
+     * Metodo que setea el valor de chi cuadrado en el label
+     * de chi actual.
+     */
     private void setActualChiValue(double actualChi) {
-        lblActual.setText(SimStringUtils.getDoubleStringFormat(actualChi, PLACES));
+        lblActual.setText(DoubleUtils.getDoubleStringFormat(actualChi, PLACES));
     }
 
+    /**
+     * Metodo que setea el valor de chi cuadrado en el label
+     * de chi esperado.
+     */
     private void setExpectedChiValue(double expectedChi) {
-        lblExpected.setText(SimStringUtils.getDoubleStringFormat(expectedChi, PLACES));
+        lblExpected.setText(DoubleUtils.getDoubleStringFormat(expectedChi, PLACES));
     }
 
     /**
@@ -350,6 +380,12 @@ public class MainMenuController {
 
     }
 
+    /**
+     * Metodo que retorna la cantidad de parametros segun
+     * la distribucion se haya elegido. Normal y Uniforme
+     * tiene 2 parametros mientras que la exponencial negativa
+     * tiene uno solo.
+     */
     private int getDistributionParameterCount() {
         if (expNegController.isPresent()) {
             return NEG_EXP_DEGREES_OF_FREEDOM;
@@ -361,6 +397,10 @@ public class MainMenuController {
         throw new IllegalStateException();
     }
 
+    /**
+     * Metodo que setea el label de distribucion segund la
+     * seleccion del combo de distribucion.
+     */
     private void setDistributionLabel() {
         lblDistribution.setText(cmbDistribution.getValue());
     }
@@ -503,6 +543,9 @@ public class MainMenuController {
         return NormalDistributionGenerator.createOf(mean, sd);
     }
 
+    /**
+     * Metodo que carga la vista de la tabla y la genera como popup.
+     */
     private Optional<ChiSquaredTableViewController> loadTableView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/popups/chi-squared-table.fxml"));
@@ -515,6 +558,9 @@ public class MainMenuController {
         }
     }
 
+    /**
+     * Metodo que carga la vista de la lista ya lgenera como popup.
+     */
     private Optional<ChiSquaredListViewController> loadListView() {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/popups/list-view.fxml"));
@@ -527,6 +573,9 @@ public class MainMenuController {
         }
     }
 
+    /**
+     * Metodo que abre un nuevo dialogo con una escena.
+     */
     private void openNewDialog(Parent parent) {
         final Stage dialog = new Stage();
         Scene scene = new Scene(parent);

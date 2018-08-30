@@ -3,7 +3,8 @@ package utn.frc.sim.views.popups;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.ListView;
-import utn.frc.sim.util.SimStringUtils;
+import utn.frc.sim.util.DoubleUtils;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,7 +21,7 @@ public class ChiSquaredListViewController {
     public void setListToListView(List<Double> listToAdd) {
         ObservableList<String> items = lstNumbers.getItems();
         items.clear();
-        items.addAll(listToAdd.stream().map(SimStringUtils::getDoubleWithFourPlaces).collect(Collectors.toList()));
+        items.addAll(listToAdd.stream().map(DoubleUtils::getDoubleWithFourPlaces).collect(Collectors.toList()));
     }
 
 }

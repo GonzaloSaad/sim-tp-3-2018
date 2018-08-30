@@ -1,7 +1,7 @@
 package utn.frc.sim.generators.intervals;
 
 import utn.frc.sim.generators.distributions.DistributionRandomGenerator;
-import utn.frc.sim.generators.distributions.DistributionValueGenerator;
+import utn.frc.sim.generators.distributions.valuegenerator.DistributionValueGenerator;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,7 +63,7 @@ public class IntervalsCreator {
                 to = minValue + step * (i + 1);
             }
 
-            Interval interval = new Interval(from, to, distributionValues.get(from, to), amountOfNumbers);
+            Interval interval = new Interval(from, to, distributionValues.getExpectedFrequency(from, to), amountOfNumbers);
             intervals.add(interval);
         }
 
