@@ -31,6 +31,10 @@ public class Interval {
         return observedFrequency;
     }
 
+    public double getExpectedFrequency() {
+        return expectedFrequency;
+    }
+
     public String displayName() {
         return getDisplay(from) + "-" + getDisplay(to);
     }
@@ -45,19 +49,28 @@ public class Interval {
                 '}';
     }
 
+    public double getResult() {
+        return Math.pow(observedFrequency - expectedFrequency, 2) / expectedFrequency;
+    }
+
+    public String getDisplayableInterval() {
+        return getDisplay((from + to) / 2);
+    }
+
+    public String getDisplayableExpectedFrequency(){
+        return getDisplay(expectedFrequency);
+    }
+
+    public String getDisplayableObservedFrequency(){
+        return getDisplay(observedFrequency);
+    }
+
+    public String getDisplayableResult() {
+        return getDisplay(getResult());
+    }
+
     private String getDisplay(double value) {
         return SimStringUtils.getDoubleStringFormat(value, 4);
     }
 
-    private String getDoubleString(double number) {
-        return Double.toString((MathUtils.round(number, 4)));
-    }
-
-    public String getPlottableInterval() {
-        return getDisplay((from + to) / 2);
-    }
-
-    public double getResult() {
-        return Math.pow(observedFrequency - expectedFrequency, 2) / expectedFrequency;
-    }
 }

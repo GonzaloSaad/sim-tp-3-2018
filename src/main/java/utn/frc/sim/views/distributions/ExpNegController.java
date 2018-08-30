@@ -12,9 +12,9 @@ import java.text.ParseException;
 
 public class ExpNegController {
 
-    private static final double SPINNER_DOUBLE_MIN_VALUE = 0.0001;
+    private static final double SPINNER_DOUBLE_MIN_VALUE = 0.01;
     private static final double SPINNER_DOUBLE_MAX_VALUE = Integer.MAX_VALUE;
-    private static final double SPINNER_DOUBLE_LAMBDA_INITIAL_VALUE = 0.10;
+    private static final double SPINNER_DOUBLE_LAMBDA_INITIAL_VALUE = 4.00;
     private static final double SPINNER_DOUBLE_STEP_VALUE = 0.05;
     private static final int SPINNER_NO_INCREMENT_STEP = 0;
 

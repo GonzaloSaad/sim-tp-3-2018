@@ -5,6 +5,8 @@ import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.chart.BarChart;
 import javafx.scene.chart.XYChart;
 import javafx.scene.control.*;
@@ -26,6 +28,8 @@ import utn.frc.sim.util.SimStringUtils;
 import utn.frc.sim.views.distributions.ExpNegController;
 import utn.frc.sim.views.distributions.NormalController;
 import utn.frc.sim.views.distributions.UniformController;
+import utn.frc.sim.views.popups.ChiSquaredListViewController;
+import utn.frc.sim.views.popups.ChiSquaredTableViewController;
 
 import java.io.IOException;
 import java.text.DecimalFormat;
@@ -40,7 +44,7 @@ public class MainMenuController {
 
     private static final String X_AXIS_LABEL = "Intervalos.";
     private static final String Y_AXIS_LABEL = "Frecuencia relativa.";
-    private static final int SPINNER_INTEGER_MIN_VALUE = 2;
+    private static final int SPINNER_INTEGER_MIN_VALUE = 10;
     private static final int SPINNER_INTEGER_MAX_VALUE = Integer.MAX_VALUE;
     private static final int SPINNER_NO_INCREMENT_STEP = 0;
     private static final String NORMAL_DISTRIBUTION = "NORMAL";
@@ -64,6 +68,9 @@ public class MainMenuController {
     private Optional<NormalController> normalController;
     private Optional<UniformController> uniformController;
 
+    private List<Double> numbers;
+    private List<Interval> intervals;
+
     @FXML
     private AnchorPane pnlParameters;
 
@@ -83,9 +90,6 @@ public class MainMenuController {
     private BarChart<String, Number> grpGraficoDeFrecuencias;
 
     @FXML
-    private Hyperlink lblShowTable;
-
-    @FXML
     private Label lblDistribution;
 
     @FXML
@@ -97,6 +101,11 @@ public class MainMenuController {
     @FXML
     private Label lblHypothesis;
 
+    @FXML
+    private Hyperlink lblShowList;
+
+    @FXML
+    private Hyperlink lblShowTable;
 
     /**
      * Metodo que se ejectua luego de la inicializacion de los
@@ -258,9 +267,20 @@ public class MainMenuController {
 
     @FXML
     void verTablaClick(ActionEvent event) {
-        final Stage dialog = new Stage();
-        dialog.initModality(Modality.WINDOW_MODAL);
-        dialog.show();
+        loadAndSetTableView();
+    }
+
+    @FXML
+    void verListaClick(ActionEvent event) {
+        loadAndSetListView();
+    }
+
+    private void loadAndSetListView() {
+        loadListView().ifPresent(listController -> listController.setListToListView(numbers));
+    }
+
+    private void loadAndSetTableView() {
+        loadTableView().ifPresent(tableController -> tableController.setItemsInTableView(intervals));
     }
 
     /**
@@ -270,16 +290,23 @@ public class MainMenuController {
     private void generateValuesAndAddThemToListAndGraph() {
         IntervalsCreator creator = getIntervalsCreator();
 
-        List<Double> numbers = creator.getNumbers()
+        numbers = creator.getNumbers()
                 .stream()
                 .map(aDouble -> MathUtils.round(aDouble, 4))
                 .collect(Collectors.toList());
-        List<Interval> intervals = creator.getIntervals();
+        intervals = creator.getIntervals();
 
 
-        //setListToListView(numbers);
         plotIntervalsInGraph(intervals);
         setResultLabels(intervals);
+        setHyperlinkEnable();
+    }
+
+    private void setHyperlinkEnable() {
+        lblShowList.setVisited(Boolean.FALSE);
+        lblShowList.disableProperty().setValue(Boolean.FALSE);
+        lblShowTable.setVisited(Boolean.FALSE);
+        lblShowTable.disableProperty().setValue(Boolean.FALSE);
     }
 
     private void setResultLabels(List<Interval> intervals) {
@@ -339,16 +366,6 @@ public class MainMenuController {
     }
 
     /**
-     * Metodo que toma una lista de numeros y los
-     * setea en la lista.
-     */
-    /*private void setListToListView(List<Double> listToAdd) {
-        ObservableList<Double> items = listNumbers.getItems();
-        items.clear();
-        items.addAll(listToAdd);
-    }*/
-
-    /**
      * Metodo que toma una lista de intervalos y las plotea en el grafico.
      */
     private void plotIntervalsInGraph(List<Interval> listOfIntervals) {
@@ -358,7 +375,7 @@ public class MainMenuController {
 
 
         for (Interval interval : listOfIntervals) {
-            relative.getData().add(new XYChart.Data<>(interval.getPlottableInterval(), interval.getObservedFrequency()));
+            relative.getData().add(new XYChart.Data<>(interval.getDisplayableInterval(), interval.getObservedFrequency()));
         }
         grpGraficoDeFrecuencias.getData().clear();
         grpGraficoDeFrecuencias.getData().add(relative);
@@ -486,5 +503,35 @@ public class MainMenuController {
         return NormalDistributionGenerator.createOf(mean, sd);
     }
 
+    private Optional<ChiSquaredTableViewController> loadTableView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/popups/chi-squared-table.fxml"));
+            openNewDialog(loader.load());
+            return Optional.ofNullable(loader.getController());
 
+        } catch (IOException e) {
+            logger.error("Problem opening table.", e);
+            return Optional.empty();
+        }
+    }
+
+    private Optional<ChiSquaredListViewController> loadListView() {
+        try {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/views/popups/list-view.fxml"));
+            openNewDialog(loader.load());
+            return Optional.ofNullable(loader.getController());
+
+        } catch (IOException e) {
+            logger.error("Problem opening list view.", e);
+            return Optional.empty();
+        }
+    }
+
+    private void openNewDialog(Parent parent) {
+        final Stage dialog = new Stage();
+        Scene scene = new Scene(parent);
+        dialog.setScene(scene);
+        dialog.initModality(Modality.WINDOW_MODAL);
+        dialog.show();
+    }
 }
