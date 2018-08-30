@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TitledPane?>
+<?import javafx.scene.layout.AnchorPane?>
+
+
+<AnchorPane prefHeight="241.0" prefWidth="431.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="utn.frc.sim.views.popups.ChiSquaredTableViewController">
+   <children>
+      <TitledPane fx:id="pnlChiSquare" animated="false" layoutX="14.0" layoutY="14.0" prefHeight="206.0" prefWidth="405.0" text="Tabla de Chi cuadrado" />
+   </children>
+</AnchorPane>

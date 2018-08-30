@@ -1,7 +1,6 @@
 package utn.frc.sim.generators.intervals;
 
-import org.apache.commons.lang3.StringUtils;
-import utn.frc.sim.util.MathUtils;
+import utn.frc.sim.util.DoubleUtils;
 
 public class Interval {
     private double from;
@@ -19,7 +18,7 @@ public class Interval {
     }
 
     public boolean includes(double number) {
-        return from <= number && number <= to;
+        return from <= number && number < to;
     }
 
     public void addOccurrence() {
@@ -30,39 +29,46 @@ public class Interval {
         return observedFrequency;
     }
 
-    public String displayName() {
-        return getDisplay(from) + "-" + getDisplay(to);
-    }
-
-    @Override
-    public String toString() {
-        return "Interval{" +
-                "from=" + getDisplay(from) +
-                ", to=" + getDisplay(to) +
-                ", observedFrequency=" + observedFrequency +
-                ", expectedFrequency=" + expectedFrequency +
-                '}';
-    }
-
-    public String getDisplay(double number) {
-        return StringUtils
-                .rightPad(getDoubleString(number), 6, '0');
-
-    }
-
-    private String getDoubleString(double number) {
-        return Double.toString((MathUtils.round(number, 4)));
+    public double getExpectedFrequency() {
+        return expectedFrequency;
     }
 
     public double getResult() {
         return Math.pow(observedFrequency - expectedFrequency, 2) / expectedFrequency;
     }
 
-    public String getDisplayableResult() {
-        return getDisplay(getResult());
+    @Override
+    public String toString() {
+        return "Interval{" +
+                "from=" + getDisplayable(from) +
+                ", to=" + getDisplayable(to) +
+                ", observedFrequency=" + getDisplayable(observedFrequency) +
+                ", expectedFrequency=" + getDisplayable(expectedFrequency) +
+                '}';
     }
 
-    public String getPlottableInterval() {
-        return getDisplay((from + to) / 2);
+    public String getDisplayableName() {
+        return getDisplayable(from) + "-" + getDisplayable(to);
     }
+
+    public String getDisplayableInterval() {
+        return getDisplayable((from + to) / 2);
+    }
+
+    public String getDisplayableExpectedFrequency() {
+        return getDisplayable(expectedFrequency);
+    }
+
+    public String getDisplayableObservedFrequency() {
+        return getDisplayable(observedFrequency);
+    }
+
+    public String getDisplayableResult() {
+        return getDisplayable(getResult());
+    }
+
+    private String getDisplayable(double value) {
+        return DoubleUtils.getDoubleStringFormat(value, 4);
+    }
+
 }
