@@ -158,7 +158,7 @@ public class ExpNegController {
         if(!spnLambda.getEditor().getSelectedText().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
         if(spnLambda.getValue() < 0)
-            throw new NumberFormatException("A no puede ser mayor que B.");
+            throw new NumberFormatException("Lambda no puede ser negativo.");
         return true;
     }
 }

@@ -168,8 +168,8 @@ public class NormalController {
      * Metodo que verifica si los valores del modelo son validos.
      */
     public boolean hasValidValues() throws  NumberFormatException{
-//        if(!spnMean.getEditor().getSelectedText().matches(DoubleUtils.regex) || !spnSd.getEditor().getSelectedText().matches(DoubleUtils.regex))
-//            throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
+        if(!spnMean.getEditor().getSelectedText().matches(DoubleUtils.regex) || !spnSd.getEditor().getSelectedText().matches(DoubleUtils.regex))
+            throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
         if(spnMean.getValue() < 0)
             throw new NumberFormatException("La media no puede ser un numero negativo.");
         if(spnSd.getValue() < 0)
