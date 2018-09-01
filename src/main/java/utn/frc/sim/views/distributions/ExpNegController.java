@@ -155,7 +155,7 @@ public class ExpNegController {
      * Metodo que verifica si los valores del modelo son validos.
      */
     public boolean hasValidValues() throws NumberFormatException{
-        if(!spnLambda.getEditor().getSelectedText().matches(DoubleUtils.regex))
+        if(!spnLambda.getValue().toString().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
         if(spnLambda.getValue() < 0)
             throw new NumberFormatException("Lambda no puede ser negativo.");

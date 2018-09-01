@@ -45,6 +45,7 @@ public class NormalController {
         spnMean.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_MEAN_INITIAL_VALUE));
         spnMean.focusedProperty().addListener(getListenerForChangeFocus(spnMean));
         spnSd.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_SD_INITIAL_VALUE));
+        spnSd.focusedProperty().addListener(getListenerForChangeFocus(spnSd));
 //        setTextFieldListenerToSpinner(spnSd);
     }
 
@@ -168,7 +169,7 @@ public class NormalController {
      * Metodo que verifica si los valores del modelo son validos.
      */
     public boolean hasValidValues() throws  NumberFormatException{
-        if(!spnMean.getEditor().getSelectedText().matches(DoubleUtils.regex) || !spnSd.getEditor().getSelectedText().matches(DoubleUtils.regex))
+        if(!spnMean.getValue().toString().matches(DoubleUtils.regex) || !spnSd.getValue().toString().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
         if(spnMean.getValue() < 0)
             throw new NumberFormatException("La media no puede ser un numero negativo.");
