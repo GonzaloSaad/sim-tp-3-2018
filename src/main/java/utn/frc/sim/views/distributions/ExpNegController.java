@@ -6,6 +6,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
+import utn.frc.sim.util.DoubleUtils;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -39,7 +40,7 @@ public class ExpNegController {
     private void initializeSpinners() {
         spnLambda.setValueFactory(getDoubleValueFactory());
         spnLambda.focusedProperty().addListener(getListenerForChangeFocus(spnLambda));
-        setTextFieldListenerToSpinner(spnLambda);
+//        setTextFieldListenerToSpinner(spnLambda);
     }
 
     /**
@@ -51,7 +52,7 @@ public class ExpNegController {
                 SPINNER_DOUBLE_LAMBDA_INITIAL_VALUE,
                 SPINNER_DOUBLE_STEP_VALUE);
 
-        factory.setConverter(getStringDoubleConverter());
+//        factory.setConverter(getStringDoubleConverter());
         return factory;
     }
 
@@ -115,6 +116,21 @@ public class ExpNegController {
         };
     }
 
+    /*
+     * Se encarga de que el valor que se ve y el valor del spinner sean lo mismo.
+     */
+    private <T> void commitEditorText(Spinner<T> spinner) {
+        if (!spinner.isEditable()) return;
+        String text = spinner.getEditor().getText();
+        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
+        if (valueFactory != null) {
+            StringConverter<T> converter = valueFactory.getConverter();
+            if (converter != null) {
+                T value = converter.fromString(text);
+                valueFactory.setValue(value);
+            }
+        }
+    }
     /**
      * Metodo que genera un listener para perdida de focus, que se usa
      * para compensar el bug de JavaFX en setear el valor al spinner cuando
@@ -122,9 +138,9 @@ public class ExpNegController {
      */
     private <T> ChangeListener<? super Boolean> getListenerForChangeFocus(Spinner<T> spinner) {
         return (observable, oldValue, newValue) -> {
-            if (!newValue) {
-                spinner.increment(SPINNER_NO_INCREMENT_STEP);
-            }
+            if (newValue) return;
+            //Mergeamos el valor.
+            commitEditorText(spinner);
         };
     }
 
@@ -133,5 +149,16 @@ public class ExpNegController {
      */
     public double getLambda() {
         return spnLambda.getValue();
+    }
+
+    /*
+     * Metodo que verifica si los valores del modelo son validos.
+     */
+    public boolean hasValidValues() throws NumberFormatException{
+        if(!spnLambda.getEditor().getSelectedText().matches(DoubleUtils.regex))
+            throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
+        if(spnLambda.getValue() < 0)
+            throw new NumberFormatException("A no puede ser mayor que B.");
+        return true;
     }
 }

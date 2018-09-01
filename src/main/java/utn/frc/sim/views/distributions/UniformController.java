@@ -6,6 +6,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
+import utn.frc.sim.util.DoubleUtils;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -42,10 +43,25 @@ public class UniformController {
     private void initializeSpinners() {
         spnA.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_A_INITIAL_VALUE));
         spnA.focusedProperty().addListener(getListenerForChangeFocus(spnA));
-        setTextFieldListenerToSpinner(spnA);
         spnB.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_B_INITIAL_VALUE));
         spnB.focusedProperty().addListener(getListenerForChangeFocus(spnB));
-        setTextFieldListenerToSpinner(spnB);
+    }
+
+
+    /*
+     * Se encarga de que el valor que se ve y el valor del spinner sean lo mismo.
+     */
+    private <T> void commitEditorText(Spinner<T> spinner) {
+        if (!spinner.isEditable()) return;
+        String text = spinner.getEditor().getText();
+        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
+        if (valueFactory != null) {
+            StringConverter<T> converter = valueFactory.getConverter();
+            if (converter != null) {
+                T value = converter.fromString(text);
+                valueFactory.setValue(value);
+            }
+        }
     }
 
     /**
@@ -57,7 +73,7 @@ public class UniformController {
                 initialValue,
                 SPINNER_DOUBLE_STEP_VALUE);
 
-        factory.setConverter(getStringDoubleConverter());
+//        factory.setConverter(getStringDoubleConverter());
         return factory;
     }
 
@@ -128,9 +144,9 @@ public class UniformController {
      */
     private <T> ChangeListener<? super Boolean> getListenerForChangeFocus(Spinner<T> spinner) {
         return (observable, oldValue, newValue) -> {
-            if (!newValue) {
-                spinner.increment(SPINNER_NO_INCREMENT_STEP);
-            }
+            if (newValue) return;
+            //Mergeamos el valor.
+            commitEditorText(spinner);
         };
     }
 
@@ -146,5 +162,16 @@ public class UniformController {
      */
     public double getB() {
         return spnB.getValue();
+    }
+
+    /*
+     * Metodo que verifica si los valores del modelo son validos.
+     */
+    public boolean hasValidValues() throws NumberFormatException{
+        if(!spnA.getValue().toString().matches(DoubleUtils.regex) || !spnB.getValue().toString().matches(DoubleUtils.regex))
+            throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
+        if(spnA.getValue() > spnB.getValue())
+                throw new NumberFormatException("A no puede ser mayor que B.");
+        return true;
     }
 }

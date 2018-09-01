@@ -6,6 +6,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.SpinnerValueFactory;
 import javafx.scene.control.TextField;
 import javafx.util.StringConverter;
+import utn.frc.sim.util.DoubleUtils;
 
 import java.text.DecimalFormat;
 import java.text.ParseException;
@@ -43,10 +44,8 @@ public class NormalController {
     private void initializeSpinners() {
         spnMean.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_MEAN_INITIAL_VALUE));
         spnMean.focusedProperty().addListener(getListenerForChangeFocus(spnMean));
-        setTextFieldListenerToSpinner(spnMean);
         spnSd.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_SD_INITIAL_VALUE));
-        spnSd.focusedProperty().addListener(getListenerForChangeFocus(spnSd));
-        setTextFieldListenerToSpinner(spnSd);
+//        setTextFieldListenerToSpinner(spnSd);
     }
 
     /**
@@ -58,7 +57,7 @@ public class NormalController {
                 initialValue,
                 SPINNER_DOUBLE_STEP_VALUE);
 
-        factory.setConverter(getStringDoubleConverter());
+//        factory.setConverter(getStringDoubleConverter());
         return factory;
     }
 
@@ -122,6 +121,22 @@ public class NormalController {
         };
     }
 
+
+    /*
+     * Se encarga de que el valor que se ve y el valor del spinner sean lo mismo.
+     */
+    private <T> void commitEditorText(Spinner<T> spinner) {
+        if (!spinner.isEditable()) return;
+        String text = spinner.getEditor().getText();
+        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
+        if (valueFactory != null) {
+            StringConverter<T> converter = valueFactory.getConverter();
+            if (converter != null) {
+                T value = converter.fromString(text);
+                valueFactory.setValue(value);
+            }
+        }
+    }
     /**
      * Metodo que genera un listener para perdida de focus, que se usa
      * para compensar el bug de JavaFX en setear el valor al spinner cuando
@@ -129,9 +144,9 @@ public class NormalController {
      */
     private <T> ChangeListener<? super Boolean> getListenerForChangeFocus(Spinner<T> spinner) {
         return (observable, oldValue, newValue) -> {
-            if (!newValue) {
-                spinner.increment(SPINNER_NO_INCREMENT_STEP);
-            }
+            if (newValue) return;
+            //Mergeamos el valor.
+            commitEditorText(spinner);
         };
     }
 
@@ -149,5 +164,17 @@ public class NormalController {
         return spnSd.getValue();
     }
 
+    /*
+     * Metodo que verifica si los valores del modelo son validos.
+     */
+    public boolean hasValidValues() throws  NumberFormatException{
+//        if(!spnMean.getEditor().getSelectedText().matches(DoubleUtils.regex) || !spnSd.getEditor().getSelectedText().matches(DoubleUtils.regex))
+//            throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
+        if(spnMean.getValue() < 0)
+            throw new NumberFormatException("La media no puede ser un numero negativo.");
+        if(spnSd.getValue() < 0)
+            throw new NumberFormatException("La varianza no puede ser un numero negativo.");
+        return true;
+    }
 
 }

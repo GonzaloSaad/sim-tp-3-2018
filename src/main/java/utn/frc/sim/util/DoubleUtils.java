@@ -7,6 +7,7 @@ import java.text.DecimalFormat;
 public class DoubleUtils {
 
 
+    public static final String regex="^[+-]?(([1-9]\\d*)|0)(\\.\\d+)?$";
     /**
      * Metodo que redondea un double en una
      * cierta cantidad de decimales.

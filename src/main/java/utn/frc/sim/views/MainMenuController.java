@@ -258,10 +258,18 @@ public class MainMenuController {
     @FXML
     void btnGenerarClick(ActionEvent event) {
         try {
+            if(cmbDistribution.getSelectionModel().getSelectedItem().equals("UNIFORME"))
+                    uniformController.get().hasValidValues();
+            else if(cmbDistribution.getSelectionModel().getSelectedItem().equals("NORMAL"))
+                normalController.get().hasValidValues();
+
             generateValuesAndAddThemToListAndGraph();
+        } catch(NumberFormatException ex){
+            showErrorDialog(ex.getMessage());
         } catch (Exception e) {
             logger.error("Error in click.", e);
         }
+
     }
 
     @FXML
@@ -582,5 +590,13 @@ public class MainMenuController {
         dialog.setScene(scene);
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.show();
+    }
+
+    private void showErrorDialog(String text){
+        Alert alert = new Alert(Alert.AlertType.ERROR);
+        alert.setTitle("Error");
+        alert.setHeaderText("Error");
+        alert.setContentText(text);
+        alert.showAndWait();
     }
 }
