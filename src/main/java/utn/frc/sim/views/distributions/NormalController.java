@@ -22,10 +22,10 @@ public class NormalController {
 
 
     @FXML
-    private Spinner<Double> spnMean;
+    private TextField spnMean;
 
     @FXML
-    private Spinner<Double> spnSd;
+    private TextField spnSd;
 
     /**
      * Metodo que se ejectua luego de la inicializacion de los
@@ -42,24 +42,10 @@ public class NormalController {
      * Metodo inicializador de los spinners de cantidad de intervalos, numeros y alpha.
      */
     private void initializeSpinners() {
-        spnMean.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_MEAN_INITIAL_VALUE));
-        spnMean.focusedProperty().addListener(getListenerForChangeFocus(spnMean));
-        spnSd.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_SD_INITIAL_VALUE));
-        spnSd.focusedProperty().addListener(getListenerForChangeFocus(spnSd));
-//        setTextFieldListenerToSpinner(spnSd);
-    }
-
-    /**
-     * Metodo que contruye fabrica de valores para decimales.
-     */
-    private SpinnerValueFactory<Double> getDoubleValueFactory(double initialValue) {
-        SpinnerValueFactory<Double> factory = new SpinnerValueFactory.DoubleSpinnerValueFactory(SPINNER_DOUBLE_MIN_VALUE,
-                SPINNER_DOUBLE_MAX_VALUE,
-                initialValue,
-                SPINNER_DOUBLE_STEP_VALUE);
-
-//        factory.setConverter(getStringDoubleConverter());
-        return factory;
+        spnMean.setText((String.valueOf(SPINNER_DOUBLE_MEAN_INITIAL_VALUE)));
+        spnMean.textProperty().addListener(getListenerForText(spnMean));
+        spnSd.setText(String.valueOf(SPINNER_DOUBLE_SD_INITIAL_VALUE));
+        spnSd.textProperty().addListener(getListenerForText(spnSd));
     }
 
     /**
@@ -116,65 +102,45 @@ public class NormalController {
      */
     private ChangeListener<String> getListenerForText(TextField textField) {
         return (observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                textField.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches(DoubleUtils.regex)) {
+                textField.setText(newValue.replaceAll(DoubleUtils.regex, ""));
             }
         };
     }
 
-
-    /*
-     * Se encarga de que el valor que se ve y el valor del spinner sean lo mismo.
-     */
-    private <T> void commitEditorText(Spinner<T> spinner) {
-        if (!spinner.isEditable()) return;
-        String text = spinner.getEditor().getText();
-        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
-        if (valueFactory != null) {
-            StringConverter<T> converter = valueFactory.getConverter();
-            if (converter != null) {
-                T value = converter.fromString(text);
-                valueFactory.setValue(value);
-            }
-        }
-    }
-    /**
-     * Metodo que genera un listener para perdida de focus, que se usa
-     * para compensar el bug de JavaFX en setear el valor al spinner cuando
-     * es editado.
-     */
-    private <T> ChangeListener<? super Boolean> getListenerForChangeFocus(Spinner<T> spinner) {
-        return (observable, oldValue, newValue) -> {
-            if (newValue) return;
-            //Mergeamos el valor.
-            commitEditorText(spinner);
-        };
-    }
 
     /**
      * Metodo que retorna la media que se ingreso.
      */
-    public double getMean() {
-        return spnMean.getValue();
+    public String getMean() {
+        return spnMean.getText();
     }
 
     /**
      * Metodo que retorna la desviacion que se uso.
      */
-    public double getStandarDeviation() {
-        return spnSd.getValue();
+    public String getStandarDeviation() {
+        return spnSd.getText();
     }
 
     /*
      * Metodo que verifica si los valores del modelo son validos.
      */
-    public boolean hasValidValues() throws  NumberFormatException{
-        if(!spnMean.getValue().toString().matches(DoubleUtils.regex) || !spnSd.getValue().toString().matches(DoubleUtils.regex))
+    public boolean hasValidValues() throws NumberFormatException {
+        if (!spnMean.getText().matches(DoubleUtils.regex) || !spnSd.getText().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
-        if(spnMean.getValue() < 0)
+        if (Double.parseDouble(spnMean.getText()) < 0)
             throw new NumberFormatException("La media no puede ser un numero negativo.");
-        if(spnSd.getValue() < 0)
+        if (Double.parseDouble(spnSd.getText()) < 0)
             throw new NumberFormatException("La varianza no puede ser un numero negativo.");
+        if (Double.parseDouble(spnMean.getText()) > SPINNER_DOUBLE_MAX_VALUE)
+            throw new NumberFormatException("La mediana no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
+        if (Double.parseDouble(spnSd.getText()) > SPINNER_DOUBLE_MAX_VALUE)
+            throw new NumberFormatException("La varianza no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
+        if (Double.parseDouble(spnMean.getText()) < SPINNER_DOUBLE_MIN_VALUE)
+            throw new NumberFormatException("La mediana no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
+        if (Double.parseDouble(spnSd.getText()) < SPINNER_DOUBLE_MIN_VALUE)
+            throw new NumberFormatException("La varianza no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
         return true;
     }
 

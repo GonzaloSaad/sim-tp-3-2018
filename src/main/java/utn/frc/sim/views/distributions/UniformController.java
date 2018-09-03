@@ -22,10 +22,10 @@ public class UniformController {
 
 
     @FXML
-    private Spinner<Double> spnA;
+    private TextField spnA;
 
     @FXML
-    private Spinner<Double> spnB;
+    private TextField spnB;
 
     /**
      * Metodo que se ejectua luego de la inicializacion de los
@@ -41,40 +41,10 @@ public class UniformController {
      * Metodo inicializador de los spinners de cantidad de intervalos, numeros y alpha.
      */
     private void initializeSpinners() {
-        spnA.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_A_INITIAL_VALUE));
-        spnA.focusedProperty().addListener(getListenerForChangeFocus(spnA));
-        spnB.setValueFactory(getDoubleValueFactory(SPINNER_DOUBLE_B_INITIAL_VALUE));
-        spnB.focusedProperty().addListener(getListenerForChangeFocus(spnB));
-    }
-
-
-    /*
-     * Se encarga de que el valor que se ve y el valor del spinner sean lo mismo.
-     */
-    private <T> void commitEditorText(Spinner<T> spinner) {
-        if (!spinner.isEditable()) return;
-        String text = spinner.getEditor().getText();
-        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
-        if (valueFactory != null) {
-            StringConverter<T> converter = valueFactory.getConverter();
-            if (converter != null) {
-                T value = converter.fromString(text);
-                valueFactory.setValue(value);
-            }
-        }
-    }
-
-    /**
-     * Metodo que contruye fabrica de valores para decimales.
-     */
-    private SpinnerValueFactory<Double> getDoubleValueFactory(double initialValue) {
-        SpinnerValueFactory<Double> factory = new SpinnerValueFactory.DoubleSpinnerValueFactory(SPINNER_DOUBLE_MIN_VALUE,
-                SPINNER_DOUBLE_MAX_VALUE,
-                initialValue,
-                SPINNER_DOUBLE_STEP_VALUE);
-
-//        factory.setConverter(getStringDoubleConverter());
-        return factory;
+        spnA.setText(String.valueOf(SPINNER_DOUBLE_A_INITIAL_VALUE));
+        spnA.textProperty().addListener(getListenerForText(spnA));
+        spnB.setText(String.valueOf(SPINNER_DOUBLE_B_INITIAL_VALUE));
+        spnB.textProperty().addListener(getListenerForText(spnB));
     }
 
     /**
@@ -131,47 +101,42 @@ public class UniformController {
      */
     private ChangeListener<String> getListenerForText(TextField textField) {
         return (observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                textField.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches(DoubleUtils.regex)) {
+                textField.setText(newValue.replaceAll(DoubleUtils.regex, ""));
             }
-        };
-    }
-
-    /**
-     * Metodo que genera un listener para perdida de focus, que se usa
-     * para compensar el bug de JavaFX en setear el valor al spinner cuando
-     * es editado.
-     */
-    private <T> ChangeListener<? super Boolean> getListenerForChangeFocus(Spinner<T> spinner) {
-        return (observable, oldValue, newValue) -> {
-            if (newValue) return;
-            //Mergeamos el valor.
-            commitEditorText(spinner);
         };
     }
 
     /**
      * Metodo que retorna el valor del limite inferior.
      */
-    public double getA() {
-        return spnA.getValue();
+    public String getA() {
+        return spnA.getText();
     }
 
     /**
      * Metodo que retorna el valor del limite superior.
      */
-    public double getB() {
-        return spnB.getValue();
+    public String getB() {
+        return spnB.getText();
     }
 
     /*
      * Metodo que verifica si los valores del modelo son validos.
      */
-    public boolean hasValidValues() throws NumberFormatException{
-        if(!spnA.getValue().toString().matches(DoubleUtils.regex) || !spnB.getValue().toString().matches(DoubleUtils.regex))
+    public boolean hasValidValues() throws NumberFormatException {
+        if (!spnA.getText().matches(DoubleUtils.regex) || !spnB.getText().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
-        if(spnA.getValue() > spnB.getValue())
-                throw new NumberFormatException("A no puede ser mayor que B.");
+        if (Double.parseDouble(spnA.getText()) > Double.parseDouble(spnB.getText()))
+            throw new NumberFormatException("A no puede ser mayor que B.");
+        if (Double.parseDouble(spnA.getText()) > SPINNER_DOUBLE_MAX_VALUE)
+            throw new NumberFormatException("A no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
+        if (Double.parseDouble(spnB.getText()) > SPINNER_DOUBLE_MAX_VALUE)
+            throw new NumberFormatException("B no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
+        if (Double.parseDouble(spnA.getText()) < SPINNER_DOUBLE_MIN_VALUE)
+            throw new NumberFormatException("A no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
+        if (Double.parseDouble(spnB.getText()) < SPINNER_DOUBLE_MIN_VALUE)
+            throw new NumberFormatException("B no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
         return true;
     }
 }

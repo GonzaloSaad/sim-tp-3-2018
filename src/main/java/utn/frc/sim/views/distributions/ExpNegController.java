@@ -21,7 +21,7 @@ public class ExpNegController {
 
 
     @FXML
-    private Spinner<Double> spnLambda;
+    private TextField spnLambda;
 
 
     /**
@@ -38,22 +38,8 @@ public class ExpNegController {
      * Metodo inicializador de los spinners de cantidad de intervalos, numeros y alpha.
      */
     private void initializeSpinners() {
-        spnLambda.setValueFactory(getDoubleValueFactory());
-        spnLambda.focusedProperty().addListener(getListenerForChangeFocus(spnLambda));
-//        setTextFieldListenerToSpinner(spnLambda);
-    }
-
-    /**
-     * Metodo que contruye fabrica de valores para decimales.
-     */
-    private SpinnerValueFactory<Double> getDoubleValueFactory() {
-        SpinnerValueFactory<Double> factory = new SpinnerValueFactory.DoubleSpinnerValueFactory(SPINNER_DOUBLE_MIN_VALUE,
-                SPINNER_DOUBLE_MAX_VALUE,
-                SPINNER_DOUBLE_LAMBDA_INITIAL_VALUE,
-                SPINNER_DOUBLE_STEP_VALUE);
-
-//        factory.setConverter(getStringDoubleConverter());
-        return factory;
+        spnLambda.setText(String.valueOf(SPINNER_DOUBLE_LAMBDA_INITIAL_VALUE));
+        spnLambda.textProperty().addListener(getListenerForText(spnLambda));
     }
 
     /**
@@ -110,55 +96,33 @@ public class ExpNegController {
      */
     private ChangeListener<String> getListenerForText(TextField textField) {
         return (observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                textField.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches(DoubleUtils.regex)) {
+                textField.setText(newValue.replaceAll(DoubleUtils.regex, ""));
             }
-        };
-    }
-
-    /*
-     * Se encarga de que el valor que se ve y el valor del spinner sean lo mismo.
-     */
-    private <T> void commitEditorText(Spinner<T> spinner) {
-        if (!spinner.isEditable()) return;
-        String text = spinner.getEditor().getText();
-        SpinnerValueFactory<T> valueFactory = spinner.getValueFactory();
-        if (valueFactory != null) {
-            StringConverter<T> converter = valueFactory.getConverter();
-            if (converter != null) {
-                T value = converter.fromString(text);
-                valueFactory.setValue(value);
-            }
-        }
-    }
-    /**
-     * Metodo que genera un listener para perdida de focus, que se usa
-     * para compensar el bug de JavaFX en setear el valor al spinner cuando
-     * es editado.
-     */
-    private <T> ChangeListener<? super Boolean> getListenerForChangeFocus(Spinner<T> spinner) {
-        return (observable, oldValue, newValue) -> {
-            if (newValue) return;
-            //Mergeamos el valor.
-            commitEditorText(spinner);
         };
     }
 
     /**
      * Metodo que retorna el valor de lambda que se ingreso.
      */
-    public double getLambda() {
-        return spnLambda.getValue();
+    public String getLambda() {
+        return spnLambda.getText();
     }
 
     /*
      * Metodo que verifica si los valores del modelo son validos.
      */
-    public boolean hasValidValues() throws NumberFormatException{
-        if(!spnLambda.getValue().toString().matches(DoubleUtils.regex))
-            throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
-        if(spnLambda.getValue() < 0)
+    public boolean hasValidValues() throws NumberFormatException {
+        if (!spnLambda.getText().matches(DoubleUtils.regex))
+            throw new NumberFormatException("Se debe ingresar un numero con formato valido para lambda.");
+        if (Double.parseDouble(spnLambda.getText()) < 0)
             throw new NumberFormatException("Lambda no puede ser negativo.");
+        if (Double.parseDouble(spnLambda.getText()) == 0)
+            throw new NumberFormatException("Lambda no puede ser 0.");
+        if (Double.parseDouble(spnLambda.getText()) < SPINNER_DOUBLE_MIN_VALUE)
+            throw new NumberFormatException("Lambda no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
+        if (Double.parseDouble(spnLambda.getText()) > SPINNER_DOUBLE_MAX_VALUE)
+            throw new NumberFormatException("Lambda no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
         return true;
     }
 }

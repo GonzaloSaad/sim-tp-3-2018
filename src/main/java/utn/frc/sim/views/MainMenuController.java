@@ -77,13 +77,13 @@ public class MainMenuController {
     private ComboBox<String> cmbDistribution;
 
     @FXML
-    private Spinner<Integer> spnAmountOfNumbers;
+    private TextField spnAmountOfNumbers;
 
     @FXML
-    private Spinner<Integer> spnAmountOfIntervals;
+    private TextField spnAmountOfIntervals;
 
     @FXML
-    private Spinner<Double> spnAlpha;
+    private TextField spnAlpha;
 
     @FXML
     private BarChart<String, Number> grpGraficoDeFrecuencias;
@@ -144,13 +144,13 @@ public class MainMenuController {
      * Metodo inicializador de los spinners de cantidad de intervalos, numeros y alpha.
      */
     private void initializeSpinners() {
-        spnAmountOfIntervals.setValueFactory(getIntegerValueFactory());
-        spnAmountOfIntervals.focusedProperty().addListener(getListenerForChangeFocus(spnAmountOfIntervals));
-        setTextFieldListenerToSpinner(spnAmountOfIntervals);
-        spnAmountOfNumbers.setValueFactory(getIntegerValueFactory());
-        spnAmountOfNumbers.focusedProperty().addListener(getListenerForChangeFocus(spnAmountOfNumbers));
-        setTextFieldListenerToSpinner(spnAmountOfNumbers);
-        spnAlpha.setValueFactory(getDoubleValueFactory());
+        spnAmountOfIntervals.setText(String.valueOf(SPINNER_INTEGER_MIN_VALUE));
+        spnAmountOfNumbers.setText(String.valueOf(SPINNER_INTEGER_MIN_VALUE));
+        spnAlpha.setText(String.valueOf(SPINNER_DOUBLE_MIN_VALUE));
+        spnAmountOfIntervals.textProperty().addListener(getListenerForText(spnAmountOfIntervals));
+        spnAmountOfNumbers.textProperty().addListener(getListenerForText(spnAmountOfNumbers));
+        spnAlpha.textProperty().addListener(getListenerForText(spnAlpha));
+
     }
 
     /**
@@ -159,19 +159,6 @@ public class MainMenuController {
     private SpinnerValueFactory<Integer> getIntegerValueFactory() {
         return new SpinnerValueFactory.IntegerSpinnerValueFactory(SPINNER_INTEGER_MIN_VALUE,
                 SPINNER_INTEGER_MAX_VALUE);
-    }
-
-    /**
-     * Metodo que contruye fabrica de valores para decimales.
-     */
-    private SpinnerValueFactory<Double> getDoubleValueFactory() {
-        SpinnerValueFactory<Double> factory = new SpinnerValueFactory.DoubleSpinnerValueFactory(SPINNER_DOUBLE_MIN_VALUE,
-                SPINNER_DOUBLE_MAX_VALUE,
-                SPINNER_DOUBLE_INITIAL_VALUE,
-                SPINNER_DOUBLE_STEP_VALUE);
-
-        factory.setConverter(getStringDoubleConverter());
-        return factory;
     }
 
     /**
@@ -228,8 +215,8 @@ public class MainMenuController {
      */
     private ChangeListener<String> getListenerForText(TextField textField) {
         return (observable, oldValue, newValue) -> {
-            if (!newValue.matches("\\d*")) {
-                textField.setText(newValue.replaceAll("[^\\d]", ""));
+            if (!newValue.matches(DoubleUtils.regex)) {
+                textField.setText(newValue.replaceAll(DoubleUtils.regex, ""));
             }
         };
     }
@@ -258,13 +245,15 @@ public class MainMenuController {
     @FXML
     void btnGenerarClick(ActionEvent event) {
         try {
-            if(cmbDistribution.getSelectionModel().getSelectedItem().equals("UNIFORME"))
-                    uniformController.get().hasValidValues();
-            else if(cmbDistribution.getSelectionModel().getSelectedItem().equals("NORMAL"))
+            if (cmbDistribution.getSelectionModel().getSelectedItem().equals("UNIFORME"))
+                uniformController.get().hasValidValues();
+            else if (cmbDistribution.getSelectionModel().getSelectedItem().equals("NORMAL"))
                 normalController.get().hasValidValues();
+            else
+                expNegController.get().hasValidValues();
 
             generateValuesAndAddThemToListAndGraph();
-        } catch(NumberFormatException ex){
+        } catch (NumberFormatException ex) {
             showErrorDialog(ex.getMessage());
         } catch (Exception e) {
             logger.error("Error in click.", e);
@@ -382,8 +371,8 @@ public class MainMenuController {
      * chi cuadrado en funcion de los parametros ingresados.
      */
     private double getChiSquaredTableValueFromParameters() {
-        int degreesOfFreedom = spnAmountOfIntervals.getValue() - getDistributionParameterCount() - 1;
-        double alpha = spnAlpha.getValue();
+        int degreesOfFreedom = Integer.valueOf(spnAmountOfIntervals.getText()) - getDistributionParameterCount() - 1;
+        double alpha = Double.valueOf(spnAlpha.getText());
         return new ChiSquaredDistribution(degreesOfFreedom).inverseCumulativeProbability(1 - alpha);
 
     }
@@ -502,18 +491,18 @@ public class MainMenuController {
      */
     private IntervalsCreator getIntervalsCreator() {
         return IntervalsCreator.createFor(
-                getAmountOfNumbers(),
-                getAmountOfIntervals(),
+                Integer.valueOf(getAmountOfNumbers()),
+                Integer.valueOf(getAmountOfIntervals()),
                 getDistributionGenerator()
         );
     }
 
-    private int getAmountOfIntervals() {
-        return spnAmountOfIntervals.getValue();
+    private String getAmountOfIntervals() {
+        return spnAmountOfIntervals.getText();
     }
 
-    private int getAmountOfNumbers() {
-        return spnAmountOfNumbers.getValue();
+    private String getAmountOfNumbers() {
+        return spnAmountOfNumbers.getText();
     }
 
     /**
@@ -533,21 +522,21 @@ public class MainMenuController {
 
     private DistributionRandomGenerator getNegExpGenerator() {
         ExpNegController controller = expNegController.orElseThrow(IllegalStateException::new);
-        double lambda = controller.getLambda();
+        double lambda = Double.parseDouble(controller.getLambda());
         return NegativeExponentialDistributionGenerator.createOf(lambda);
     }
 
     private DistributionRandomGenerator getUniformGenerator() {
         UniformController controller = uniformController.orElseThrow(IllegalStateException::new);
-        double a = controller.getA();
-        double b = controller.getB();
+        double a = Double.parseDouble(controller.getA());
+        double b = Double.parseDouble(controller.getB());
         return UniformDistributionGenerator.createOf(a, b);
     }
 
     private DistributionRandomGenerator getNormalGenerator() {
         NormalController controller = normalController.orElseThrow(IllegalStateException::new);
-        double mean = controller.getMean();
-        double sd = controller.getStandarDeviation();
+        double mean = Double.parseDouble(controller.getMean());
+        double sd = Double.parseDouble(controller.getStandarDeviation());
         return NormalDistributionGenerator.createOf(mean, sd);
     }
 
@@ -592,7 +581,7 @@ public class MainMenuController {
         dialog.show();
     }
 
-    private void showErrorDialog(String text){
+    private void showErrorDialog(String text) {
         Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle("Error");
         alert.setHeaderText("Error");
