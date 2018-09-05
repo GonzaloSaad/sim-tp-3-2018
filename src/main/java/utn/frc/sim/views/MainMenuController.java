@@ -44,7 +44,7 @@ public class MainMenuController {
     private static final String X_AXIS_LABEL = "Intervalos.";
     private static final String Y_AXIS_LABEL = "Frecuencia relativa.";
     private static final int SPINNER_INTEGER_MIN_VALUE = 10;
-    private static final int SPINNER_INTEGER_MAX_VALUE = Integer.MAX_VALUE;
+    private static final int SPINNER_INTEGER_MAX_VALUE = 10000000;
     private static final int SPINNER_NO_INCREMENT_STEP = 0;
     private static final String NORMAL_DISTRIBUTION = "NORMAL";
     private static final String UNIFORM_DISTRIBUTION = "UNIFORME";

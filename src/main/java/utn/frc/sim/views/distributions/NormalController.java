@@ -13,7 +13,7 @@ import java.text.ParseException;
 
 public class NormalController {
     private static final double SPINNER_DOUBLE_MIN_VALUE = 0.0001;
-    private static final double SPINNER_DOUBLE_MAX_VALUE = Integer.MAX_VALUE;
+    private static final double SPINNER_DOUBLE_MAX_VALUE = 10000000;
     private static final double SPINNER_DOUBLE_INITIAL_VALUE = 0.10;
     private static final double SPINNER_DOUBLE_MEAN_INITIAL_VALUE = 0;
     private static final double SPINNER_DOUBLE_SD_INITIAL_VALUE = 1;
@@ -129,16 +129,12 @@ public class NormalController {
     public boolean hasValidValues() throws NumberFormatException {
         if (!spnMean.getText().matches(DoubleUtils.regex) || !spnSd.getText().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
-        if (Double.parseDouble(spnMean.getText()) < 0)
-            throw new NumberFormatException("La media no puede ser un numero negativo.");
         if (Double.parseDouble(spnSd.getText()) < 0)
             throw new NumberFormatException("La varianza no puede ser un numero negativo.");
         if (Double.parseDouble(spnMean.getText()) > SPINNER_DOUBLE_MAX_VALUE)
             throw new NumberFormatException("La mediana no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
         if (Double.parseDouble(spnSd.getText()) > SPINNER_DOUBLE_MAX_VALUE)
             throw new NumberFormatException("La varianza no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
-        if (Double.parseDouble(spnMean.getText()) < SPINNER_DOUBLE_MIN_VALUE)
-            throw new NumberFormatException("La mediana no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
         if (Double.parseDouble(spnSd.getText()) < SPINNER_DOUBLE_MIN_VALUE)
             throw new NumberFormatException("La varianza no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
         return true;

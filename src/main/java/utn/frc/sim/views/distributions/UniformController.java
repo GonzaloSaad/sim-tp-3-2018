@@ -13,7 +13,7 @@ import java.text.ParseException;
 
 public class UniformController {
     private static final double SPINNER_DOUBLE_MIN_VALUE = 0.0001;
-    private static final double SPINNER_DOUBLE_MAX_VALUE = Integer.MAX_VALUE;
+    private static final double SPINNER_DOUBLE_MAX_VALUE = 10000000;
     private static final double SPINNER_DOUBLE_A_INITIAL_VALUE = 10;
     private static final double SPINNER_DOUBLE_B_INITIAL_VALUE = 20;
     private static final double SPINNER_DOUBLE_STEP_VALUE = 0.05;
