@@ -49,54 +49,6 @@ public class NormalController {
     }
 
     /**
-     * Metodo que crea un convertidor de double a string con
-     * un formato #.##
-     * Sirve para customizar la cantidad de decimales del spinner
-     */
-    private StringConverter<Double> getStringDoubleConverter() {
-        return new StringConverter<Double>() {
-            private final DecimalFormat df = new DecimalFormat("#0.00");
-
-            @Override
-            public String toString(Double value) {
-                if (value == null) {
-                    return "";
-                }
-
-                return df.format(value);
-            }
-
-            @Override
-            public Double fromString(String value) {
-                try {
-                    if (value == null) {
-                        return SPINNER_DOUBLE_INITIAL_VALUE;
-                    }
-
-                    value = value.trim();
-
-                    if (value.length() < 1) {
-                        return SPINNER_DOUBLE_INITIAL_VALUE;
-                    }
-
-                    return df.parse(value).doubleValue();
-                } catch (ParseException ex) {
-                    return SPINNER_DOUBLE_INITIAL_VALUE;
-                }
-            }
-        };
-    }
-
-    /**
-     * Metodo que inserta un listener de texto de Texfield
-     * a un spinner.
-     */
-    private void setTextFieldListenerToSpinner(Spinner spinner) {
-        TextField textField = spinner.getEditor();
-        textField.textProperty().addListener(getListenerForText(textField));
-    }
-
-    /**
      * Metodo que genera un Listener para el cambio de
      * texto de un TextField.
      */
@@ -126,7 +78,7 @@ public class NormalController {
     /*
      * Metodo que verifica si los valores del modelo son validos.
      */
-    public boolean hasValidValues() throws NumberFormatException {
+    public void validateValues() throws NumberFormatException {
         if (!spnMean.getText().matches(DoubleUtils.regex) || !spnSd.getText().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
         if (Double.parseDouble(spnSd.getText()) < 0)
@@ -137,7 +89,6 @@ public class NormalController {
             throw new NumberFormatException("La varianza no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
         if (Double.parseDouble(spnSd.getText()) < SPINNER_DOUBLE_MIN_VALUE)
             throw new NumberFormatException("La varianza no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
-        return true;
     }
 
 }

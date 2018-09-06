@@ -23,7 +23,6 @@ public class ExpNegController {
     @FXML
     private TextField spnLambda;
 
-
     /**
      * Metodo que se ejectua luego de la inicializacion de los
      * componentes FXML.
@@ -42,53 +41,6 @@ public class ExpNegController {
         spnLambda.textProperty().addListener(getListenerForText(spnLambda));
     }
 
-    /**
-     * Metodo que crea un convertidor de double a string con
-     * un formato #.##
-     * Sirve para customizar la cantidad de decimales del spinner
-     */
-    private StringConverter<Double> getStringDoubleConverter() {
-        return new StringConverter<Double>() {
-            private final DecimalFormat df = new DecimalFormat("#0.00");
-
-            @Override
-            public String toString(Double value) {
-                if (value == null) {
-                    return "";
-                }
-
-                return df.format(value);
-            }
-
-            @Override
-            public Double fromString(String value) {
-                try {
-                    if (value == null) {
-                        return SPINNER_DOUBLE_LAMBDA_INITIAL_VALUE;
-                    }
-
-                    value = value.trim();
-
-                    if (value.length() < 1) {
-                        return SPINNER_DOUBLE_LAMBDA_INITIAL_VALUE;
-                    }
-
-                    return df.parse(value).doubleValue();
-                } catch (ParseException ex) {
-                    return SPINNER_DOUBLE_LAMBDA_INITIAL_VALUE;
-                }
-            }
-        };
-    }
-
-    /**
-     * Metodo que inserta un listener de texto de Texfield
-     * a un spinner.
-     */
-    private void setTextFieldListenerToSpinner(Spinner spinner) {
-        TextField textField = spinner.getEditor();
-        textField.textProperty().addListener(getListenerForText(textField));
-    }
 
     /**
      * Metodo que genera un Listener para el cambio de
@@ -109,10 +61,10 @@ public class ExpNegController {
         return spnLambda.getText();
     }
 
-    /*
+    /**
      * Metodo que verifica si los valores del modelo son validos.
      */
-    public boolean hasValidValues() throws NumberFormatException {
+    public void validateValues() throws NumberFormatException {
         if (!spnLambda.getText().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para lambda.");
         if (Double.parseDouble(spnLambda.getText()) < 0)
@@ -123,6 +75,5 @@ public class ExpNegController {
             throw new NumberFormatException("Lambda no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
         if (Double.parseDouble(spnLambda.getText()) > SPINNER_DOUBLE_MAX_VALUE)
             throw new NumberFormatException("Lambda no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
-        return true;
     }
 }

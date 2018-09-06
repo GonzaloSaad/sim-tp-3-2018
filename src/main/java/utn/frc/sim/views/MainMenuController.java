@@ -2,6 +2,7 @@ package utn.frc.sim.views;
 
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
+import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -62,6 +63,7 @@ public class MainMenuController {
     private static final int UNIFORM_DEGREES_OF_FREEDOM = 2;
     private static final int PLACES = 4;
 
+    Thread calculationThread;
 
     private Optional<ExpNegController> expNegController;
     private Optional<NormalController> normalController;
@@ -245,20 +247,17 @@ public class MainMenuController {
     @FXML
     void btnGenerarClick(ActionEvent event) {
         try {
-            if (cmbDistribution.getSelectionModel().getSelectedItem().equals("UNIFORME"))
-                uniformController.get().hasValidValues();
-            else if (cmbDistribution.getSelectionModel().getSelectedItem().equals("NORMAL"))
-                normalController.get().hasValidValues();
-            else
-                expNegController.get().hasValidValues();
-
+            if (cmbDistribution.getSelectionModel().getSelectedItem().equals("UNIFORME")) {
+                uniformController.ifPresent(UniformController::validateValues);
+            } else if (cmbDistribution.getSelectionModel().getSelectedItem().equals("NORMAL")) {
+                normalController.ifPresent(NormalController::validateValues);
+            } else {
+                expNegController.ifPresent(ExpNegController::validateValues);
+            }
             generateValuesAndAddThemToListAndGraph();
-        } catch (NumberFormatException ex) {
+        } catch (Exception ex) {
             showErrorDialog(ex.getMessage());
-        } catch (Exception e) {
-            logger.error("Error in click.", e);
         }
-
     }
 
     @FXML
@@ -410,7 +409,6 @@ public class MainMenuController {
         XYChart.Series<String, Number> relative = new XYChart.Series<>();
         relative.setName(RELATIVE_FREQUENCY_SERIES_LABEL);
 
-
         for (Interval interval : listOfIntervals) {
             relative.getData().add(new XYChart.Data<>(interval.getDisplayableInterval(), interval.getObservedFrequency()));
         }
@@ -491,18 +489,18 @@ public class MainMenuController {
      */
     private IntervalsCreator getIntervalsCreator() {
         return IntervalsCreator.createFor(
-                Integer.valueOf(getAmountOfNumbers()),
-                Integer.valueOf(getAmountOfIntervals()),
+                getAmountOfNumbers(),
+                getAmountOfIntervals(),
                 getDistributionGenerator()
         );
     }
 
-    private String getAmountOfIntervals() {
-        return spnAmountOfIntervals.getText();
+    private int getAmountOfIntervals() {
+        return Integer.valueOf(spnAmountOfIntervals.getText());
     }
 
-    private String getAmountOfNumbers() {
-        return spnAmountOfNumbers.getText();
+    private int getAmountOfNumbers() {
+        return Integer.valueOf(spnAmountOfNumbers.getText());
     }
 
     /**
@@ -588,4 +586,5 @@ public class MainMenuController {
         alert.setContentText(text);
         alert.showAndWait();
     }
+
 }
