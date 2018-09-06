@@ -4,10 +4,11 @@
 <?import javafx.scene.control.Spinner?>
 <?import javafx.scene.layout.AnchorPane?>
 
+<?import javafx.scene.control.TextField?>
 <AnchorPane prefHeight="69.0" prefWidth="234.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="utn.frc.sim.views.distributions.NormalController">
    <children>
-      <Spinner fx:id="spnMean" editable="true" layoutX="85.0" />
-      <Spinner fx:id="spnSd" editable="true" layoutX="85.0" layoutY="31.0" />
+      <TextField fx:id="spnMean" editable="true" layoutX="85.0" />
+      <TextField fx:id="spnSd" editable="true" layoutX="85.0" layoutY="31.0" />
       <Label layoutX="41.0" layoutY="4.0" prefHeight="17.0" prefWidth="42.0" text="Media:" />
       <Label layoutX="29.0" layoutY="35.0" prefHeight="17.0" prefWidth="52.0" text="Varianza:" />
    </children>
