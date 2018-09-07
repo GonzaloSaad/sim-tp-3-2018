@@ -1,8 +1,8 @@
 package utn.frc.sim.views;
 
+import javafx.application.Platform;
 import javafx.beans.value.ChangeListener;
 import javafx.collections.FXCollections;
-import javafx.concurrent.Task;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
@@ -36,17 +36,21 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.stream.Collectors;
 
+@SuppressWarnings("OptionalUsedAsFieldOrParameterType")
 public class MainMenuController {
 
+    private ExecutorService executorService;
+    private Future<?> futureOfExecution;
     private static final Logger logger = LogManager.getLogger(MainMenuController.class);
 
     private static final String X_AXIS_LABEL = "Intervalos.";
     private static final String Y_AXIS_LABEL = "Frecuencia relativa.";
     private static final int SPINNER_INTEGER_MIN_VALUE = 10;
-    private static final int SPINNER_INTEGER_MAX_VALUE = 10000000;
-    private static final int SPINNER_NO_INCREMENT_STEP = 0;
     private static final String NORMAL_DISTRIBUTION = "NORMAL";
     private static final String UNIFORM_DISTRIBUTION = "UNIFORME";
     private static final String NEG_EXP_DISTRIBUTION = "EXP. NEG.";
@@ -55,15 +59,13 @@ public class MainMenuController {
     private static final String HO_ACCEPTED = "NO RECHAZADA";
     private static final String HO_REJECTED = "RECHAZADA";
     private static final double SPINNER_DOUBLE_MIN_VALUE = 0.01;
-    private static final double SPINNER_DOUBLE_MAX_VALUE = 1;
-    private static final double SPINNER_DOUBLE_INITIAL_VALUE = 0.01;
-    private static final double SPINNER_DOUBLE_STEP_VALUE = 0.01;
     private static final int NORMAL_DEGREES_OF_FREEDOM = 2;
     private static final int NEG_EXP_DEGREES_OF_FREEDOM = 1;
     private static final int UNIFORM_DEGREES_OF_FREEDOM = 2;
     private static final int PLACES = 4;
-
-    Thread calculationThread;
+    private static final String STATE_PROCESSING = "Procesando...";
+    private static final String STATE_INTERRUPTED = "Interrumpido.";
+    private static final String STATE_FINISHED = "Terminado.";
 
     private Optional<ExpNegController> expNegController;
     private Optional<NormalController> normalController;
@@ -107,6 +109,15 @@ public class MainMenuController {
 
     @FXML
     private Hyperlink lblShowTable;
+
+    @FXML
+    private Label lblState;
+
+    @FXML
+    private Button btnStop;
+
+    @FXML
+    private Button btnGenerar;
 
     /**
      * Metodo que se ejectua luego de la inicializacion de los
@@ -156,62 +167,6 @@ public class MainMenuController {
     }
 
     /**
-     * Metodo que contruye fabrica de valores enteros para los spinners.
-     */
-    private SpinnerValueFactory<Integer> getIntegerValueFactory() {
-        return new SpinnerValueFactory.IntegerSpinnerValueFactory(SPINNER_INTEGER_MIN_VALUE,
-                SPINNER_INTEGER_MAX_VALUE);
-    }
-
-    /**
-     * Metodo que crea un convertidor de double a string con
-     * un formato #.##
-     * Sirve para customizar la cantidad de decimales del spinner
-     */
-    private StringConverter<Double> getStringDoubleConverter() {
-        return new StringConverter<Double>() {
-            private final DecimalFormat df = new DecimalFormat("#0.00");
-
-            @Override
-            public String toString(Double value) {
-                if (value == null) {
-                    return "";
-                }
-
-                return df.format(value);
-            }
-
-            @Override
-            public Double fromString(String value) {
-                try {
-                    if (value == null) {
-                        return SPINNER_DOUBLE_INITIAL_VALUE;
-                    }
-
-                    value = value.trim();
-
-                    if (value.length() < 1) {
-                        return SPINNER_DOUBLE_INITIAL_VALUE;
-                    }
-
-                    return df.parse(value).doubleValue();
-                } catch (ParseException ex) {
-                    return SPINNER_DOUBLE_INITIAL_VALUE;
-                }
-            }
-        };
-    }
-
-    /**
-     * Metodo que inserta un listener de texto de Texfield
-     * a un spinner.
-     */
-    private void setTextFieldListenerToSpinner(Spinner spinner) {
-        TextField textField = spinner.getEditor();
-        textField.textProperty().addListener(getListenerForText(textField));
-    }
-
-    /**
      * Metodo que genera un Listener para el cambio de
      * texto de un TextField.
      */
@@ -219,19 +174,6 @@ public class MainMenuController {
         return (observable, oldValue, newValue) -> {
             if (!newValue.matches(DoubleUtils.regex)) {
                 textField.setText(newValue.replaceAll(DoubleUtils.regex, ""));
-            }
-        };
-    }
-
-    /**
-     * Metodo que genera un listener para perdida de focus, que se usa
-     * para compensar el bug de JavaFX en setear el valor al spinner cuando
-     * es editado.
-     */
-    private <T> ChangeListener<? super Boolean> getListenerForChangeFocus(Spinner<T> spinner) {
-        return (observable, oldValue, newValue) -> {
-            if (!newValue) {
-                spinner.increment(SPINNER_NO_INCREMENT_STEP);
             }
         };
     }
@@ -254,7 +196,9 @@ public class MainMenuController {
             } else {
                 expNegController.ifPresent(ExpNegController::validateValues);
             }
-            generateValuesAndAddThemToListAndGraph();
+            executorService = Executors.newFixedThreadPool(3);
+            futureOfExecution = executorService.submit(this::generateValuesAndAddThemToListAndGraph);
+
         } catch (Exception ex) {
             showErrorDialog(ex.getMessage());
         }
@@ -268,6 +212,14 @@ public class MainMenuController {
     @FXML
     void verListaClick(ActionEvent event) {
         loadAndSetListView();
+    }
+
+    @FXML
+    void btnStopClick(ActionEvent event) {
+        if (futureOfExecution != null) {
+            futureOfExecution.cancel(Boolean.TRUE);
+            setUIToInterrumpedState();
+        }
     }
 
     /**
@@ -289,6 +241,7 @@ public class MainMenuController {
      * posterior seteo en la lista y el grafico.
      */
     private void generateValuesAndAddThemToListAndGraph() {
+        Platform.runLater(this::setUIToProcessingState);
         IntervalsCreator creator = getIntervalsCreator();
 
         numbers = creator.getNumbers()
@@ -297,10 +250,53 @@ public class MainMenuController {
                 .collect(Collectors.toList());
         intervals = creator.getIntervals();
 
+        Platform.runLater(this::setResultsToUI);
+        Platform.runLater(this::setUIToFinishedState);
+        executorService.shutdownNow();
 
+    }
+
+    /**
+     * Metodo que setea los resultados a los distintos
+     * componentes de la UI.
+     */
+    private void setResultsToUI() {
         plotIntervalsInGraph(intervals);
         setResultLabels(intervals);
         setHyperlinkEnable();
+    }
+
+    /**
+     * Metodo que setea a la UI en estado de procesando.
+     * Deshabilita el boton de generar y habilita el de stop.
+     * Setea el label de estado a procesando.
+     */
+    private void setUIToProcessingState(){
+        enableStopButton();
+        disableGenerarButton();
+        setStatusLabelToProcessing();
+    }
+
+    /**
+     * Metodo que setea a la UI en estado de terminado.
+     * Deshabilita el boton de stop y habilita el de generar.
+     * Setea el label de estado a terminado.
+     */
+    private void setUIToFinishedState(){
+        disableStopButton();
+        enableGenerarButton();
+        setStatusLabelToFinished();
+    }
+
+    /**
+     * Metodo que setea a la UI en estado de interrumpido.
+     * Deshabilita el boton de stop y habilita el de generar.
+     * Setea el label de estado a interrumpido
+     */
+    private void setUIToInterrumpedState(){
+        disableStopButton();
+        enableGenerarButton();
+        setStatusLabelToInterrupted();
     }
 
     /**
@@ -585,6 +581,34 @@ public class MainMenuController {
         alert.setHeaderText("Error");
         alert.setContentText(text);
         alert.showAndWait();
+    }
+
+    private void setStatusLabelToProcessing() {
+        lblState.setText(STATE_PROCESSING);
+    }
+
+    private void setStatusLabelToFinished(){
+        lblState.setText(STATE_FINISHED);
+    }
+
+    private void setStatusLabelToInterrupted(){
+        lblState.setText(STATE_INTERRUPTED);
+    }
+
+    private void disableStopButton(){
+        btnStop.setDisable(Boolean.TRUE);
+    }
+
+    private void enableStopButton(){
+        btnStop.setDisable(Boolean.FALSE);
+    }
+
+    private void disableGenerarButton(){
+        btnGenerar.setDisable(Boolean.TRUE);
+    }
+
+    private void enableGenerarButton(){
+        btnGenerar.setDisable(Boolean.FALSE);
     }
 
 }
