@@ -11,6 +11,8 @@ public class IntervalsCreator {
     private List<Interval> intervals;
     private List<Double> numbers;
     private static final double DOUBLE_MAX_INTERVAL_ADJUSTMENT = 0.000000000001;
+    private static final int MAX_AMOUNT_OF_NUMBERS_IN_LIST = 100;
+    private static final int INITIAL_INDEX = 0;
 
     public IntervalsCreator() {
     }
@@ -30,16 +32,35 @@ public class IntervalsCreator {
      */
     private void createIntervals(int amountOfNumbers, int amountOfIntervals, DistributionRandomGenerator generator) {
 
-        intervals = new ArrayList<>();
-        numbers = generator.random(amountOfNumbers);
 
-        double maxValue = numbers.stream()
+        List<Double> generatedNumbers = generator.random(amountOfNumbers);
+
+        intervals = generateIntervals(amountOfNumbers, amountOfIntervals, generator, generatedNumbers);
+
+        generatedNumbers.forEach(number -> intervals.stream()
+                .filter(it -> it.includes(number))
+                .findFirst()
+                .ifPresent(Interval::addOccurrence));
+
+        int endIndex = amountOfNumbers;
+        if (amountOfNumbers > MAX_AMOUNT_OF_NUMBERS_IN_LIST){
+            endIndex = MAX_AMOUNT_OF_NUMBERS_IN_LIST;
+        }
+        
+        numbers = generatedNumbers.subList(INITIAL_INDEX, endIndex);
+    }
+
+    private List<Interval> generateIntervals(int amountOfNumbers, int amountOfIntervals, DistributionRandomGenerator generator, List<Double> generatedNumbers) {
+
+        List<Interval> intervalList = new ArrayList<>();
+
+        double maxValue = generatedNumbers.stream()
                 .reduce((d1, d2) -> d2 > d1 ? d2 : d1)
                 .orElseThrow(IllegalArgumentException::new);
 
         maxValue += DOUBLE_MAX_INTERVAL_ADJUSTMENT;
 
-        double minValue = numbers.stream()
+        double minValue = generatedNumbers.stream()
                 .reduce((d1, d2) -> d2 < d1 ? d2 : d1)
                 .orElseThrow(IllegalArgumentException::new);
 
@@ -64,13 +85,9 @@ public class IntervalsCreator {
             }
 
             Interval interval = new Interval(from, to, distributionValues.getExpectedFrequency(from, to), amountOfNumbers);
-            intervals.add(interval);
+            intervalList.add(interval);
         }
-
-        numbers.forEach(number -> intervals.stream()
-                .filter(it -> it.includes(number))
-                .findFirst()
-                .ifPresent(Interval::addOccurrence));
+        return intervalList;
     }
 
     public List<Double> getNumbers() {

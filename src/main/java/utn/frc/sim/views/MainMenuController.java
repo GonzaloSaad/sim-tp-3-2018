@@ -67,6 +67,8 @@ public class MainMenuController {
     private static final String STATE_INTERRUPTED = "Interrumpido.";
     private static final String STATE_FINISHED = "Terminado.";
 
+    private static final int THREADS = Runtime.getRuntime().availableProcessors();
+
     private Optional<ExpNegController> expNegController;
     private Optional<NormalController> normalController;
     private Optional<UniformController> uniformController;
@@ -196,7 +198,7 @@ public class MainMenuController {
             } else {
                 expNegController.ifPresent(ExpNegController::validateValues);
             }
-            executorService = Executors.newFixedThreadPool(3);
+            executorService = Executors.newFixedThreadPool(THREADS);
             futureOfExecution = executorService.submit(this::generateValuesAndAddThemToListAndGraph);
 
         } catch (Exception ex) {
