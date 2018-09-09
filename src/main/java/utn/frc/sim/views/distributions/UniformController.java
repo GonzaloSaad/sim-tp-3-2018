@@ -12,7 +12,6 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 
 public class UniformController {
-    private static final double SPINNER_DOUBLE_MIN_VALUE = 0.0001;
     private static final double SPINNER_DOUBLE_MAX_VALUE = 10000000;
     private static final double SPINNER_DOUBLE_A_INITIAL_VALUE = 10;
     private static final double SPINNER_DOUBLE_B_INITIAL_VALUE = 20;
@@ -122,9 +121,5 @@ public class UniformController {
             throw new NumberFormatException("A no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
         if (Double.parseDouble(spnB.getText()) > SPINNER_DOUBLE_MAX_VALUE)
             throw new NumberFormatException("B no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
-        if (Double.parseDouble(spnA.getText()) < SPINNER_DOUBLE_MIN_VALUE)
-            throw new NumberFormatException("A no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
-        if (Double.parseDouble(spnB.getText()) < SPINNER_DOUBLE_MIN_VALUE)
-            throw new NumberFormatException("B no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
     }
 }

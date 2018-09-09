@@ -51,6 +51,8 @@ public class MainMenuController {
     private static final String X_AXIS_LABEL = "Intervalos.";
     private static final String Y_AXIS_LABEL = "Frecuencia relativa.";
     private static final int SPINNER_INTEGER_MIN_VALUE = 10;
+    private static final int MAX_AMOUNT_NUMBERS = 1000000;
+    private static final int MAX_AMOUNT_INTERVALS = 50;
     private static final String NORMAL_DISTRIBUTION = "NORMAL";
     private static final String UNIFORM_DISTRIBUTION = "UNIFORME";
     private static final String NEG_EXP_DISTRIBUTION = "EXP. NEG.";
@@ -191,6 +193,7 @@ public class MainMenuController {
     @FXML
     void btnGenerarClick(ActionEvent event) {
         try {
+            this.validateValues();
             if (cmbDistribution.getSelectionModel().getSelectedItem().equals("UNIFORME")) {
                 uniformController.ifPresent(UniformController::validateValues);
             } else if (cmbDistribution.getSelectionModel().getSelectedItem().equals("NORMAL")) {
@@ -273,7 +276,7 @@ public class MainMenuController {
      * Deshabilita el boton de generar y habilita el de stop.
      * Setea el label de estado a procesando.
      */
-    private void setUIToProcessingState(){
+    private void setUIToProcessingState() {
         enableStopButton();
         disableGenerarButton();
         setStatusLabelToProcessing();
@@ -284,7 +287,7 @@ public class MainMenuController {
      * Deshabilita el boton de stop y habilita el de generar.
      * Setea el label de estado a terminado.
      */
-    private void setUIToFinishedState(){
+    private void setUIToFinishedState() {
         disableStopButton();
         enableGenerarButton();
         setStatusLabelToFinished();
@@ -295,7 +298,7 @@ public class MainMenuController {
      * Deshabilita el boton de stop y habilita el de generar.
      * Setea el label de estado a interrumpido
      */
-    private void setUIToInterrumpedState(){
+    private void setUIToInterrumpedState() {
         disableStopButton();
         enableGenerarButton();
         setStatusLabelToInterrupted();
@@ -585,31 +588,44 @@ public class MainMenuController {
         alert.showAndWait();
     }
 
+    public void validateValues() throws NumberFormatException {
+        if (!spnAmountOfNumbers.getText().matches(DoubleUtils.regex) || !spnAmountOfIntervals.getText().matches(DoubleUtils.regex))
+            throw new NumberFormatException("Se debe ingresar un numero con formato valido para la cantidad de numeros y los intervalos.");
+        if (Double.parseDouble(spnAmountOfNumbers.getText()) > MAX_AMOUNT_NUMBERS)
+            throw new NumberFormatException("La cantidad de numeros no puede ser mayor a " + MAX_AMOUNT_NUMBERS);
+        if (Double.parseDouble(spnAmountOfIntervals.getText()) > MAX_AMOUNT_INTERVALS)
+            throw new NumberFormatException("La cantidad de intervalos no puede ser mayor a " + MAX_AMOUNT_INTERVALS);
+        if (Double.parseDouble(spnAmountOfNumbers.getText()) < 0)
+            throw new NumberFormatException("La cantidad de numeros no puede ser menor a 0.");
+        if (Double.parseDouble(spnAmountOfIntervals.getText()) < 0)
+            throw new NumberFormatException("La cantidad de intervalos no puede ser menor a 0.");
+    }
+
     private void setStatusLabelToProcessing() {
         lblState.setText(STATE_PROCESSING);
     }
 
-    private void setStatusLabelToFinished(){
+    private void setStatusLabelToFinished() {
         lblState.setText(STATE_FINISHED);
     }
 
-    private void setStatusLabelToInterrupted(){
+    private void setStatusLabelToInterrupted() {
         lblState.setText(STATE_INTERRUPTED);
     }
 
-    private void disableStopButton(){
+    private void disableStopButton() {
         btnStop.setDisable(Boolean.TRUE);
     }
 
-    private void enableStopButton(){
+    private void enableStopButton() {
         btnStop.setDisable(Boolean.FALSE);
     }
 
-    private void disableGenerarButton(){
+    private void disableGenerarButton() {
         btnGenerar.setDisable(Boolean.TRUE);
     }
 
-    private void enableGenerarButton(){
+    private void enableGenerarButton() {
         btnGenerar.setDisable(Boolean.FALSE);
     }
 
