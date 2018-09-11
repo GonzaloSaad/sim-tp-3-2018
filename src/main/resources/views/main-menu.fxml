@@ -7,15 +7,14 @@
 <?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
-<?import javafx.scene.control.Spinner?>
+<?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<?import javafx.scene.control.TextField?>
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="576.0" prefWidth="1024.0" xmlns="http://javafx.com/javafx/10.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="utn.frc.sim.views.MainMenuController">
    <children>
       <ComboBox fx:id="cmbDistribution" layoutX="123.0" layoutY="53.0" onAction="#changeInDistributionClick" prefWidth="150.0" />
       <Label layoutX="39.0" layoutY="57.0" text="Distribucion:" />
-      <Button layoutX="214.0" layoutY="269.0" mnemonicParsing="false" onAction="#btnGenerarClick" text="Generar" />
+      <Button fx:id="btnGenerar" layoutX="146.0" layoutY="269.0" mnemonicParsing="false" onAction="#btnGenerarClick" text="Generar" />
       <Label layoutX="39.0" layoutY="173.0" text="Cant. de Num." />
       <TextField fx:id="spnAmountOfNumbers" editable="true" layoutX="124.0" layoutY="169.0" />
       <BarChart fx:id="grpGraficoDeFrecuencias" animated="false" layoutX="297.0" layoutY="45.0" prefHeight="497.0" prefWidth="711.0">
@@ -41,5 +40,7 @@
       <TextField fx:id="spnAlpha" layoutX="124.0" layoutY="231.0" />
       <Label layoutX="39.0" layoutY="235.0" text="Alfa:" />
       <Hyperlink fx:id="lblShowList" disable="true" layoutX="222.0" layoutY="400.0" onAction="#verListaClick" text="Ver Lista" underline="true" />
+      <Button fx:id="btnStop" disable="true" layoutX="214.0" layoutY="269.0" mnemonicParsing="false" onAction="#btnStopClick" prefHeight="25.0" prefWidth="59.0" text="Stop" />
+      <Label fx:id="lblState" layoutX="28.0" layoutY="273.0" prefHeight="17.0" prefWidth="102.0" />
    </children>
 </AnchorPane>

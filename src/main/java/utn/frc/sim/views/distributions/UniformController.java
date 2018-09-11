@@ -12,13 +12,10 @@ import java.text.DecimalFormat;
 import java.text.ParseException;
 
 public class UniformController {
-    private static final double SPINNER_DOUBLE_MIN_VALUE = 0.0001;
     private static final double SPINNER_DOUBLE_MAX_VALUE = 10000000;
     private static final double SPINNER_DOUBLE_A_INITIAL_VALUE = 10;
     private static final double SPINNER_DOUBLE_B_INITIAL_VALUE = 20;
-    private static final double SPINNER_DOUBLE_STEP_VALUE = 0.05;
     private static final double SPINNER_DOUBLE_INITIAL_VALUE = 0.01;
-    private static final int SPINNER_NO_INCREMENT_STEP = 0;
 
 
     @FXML
@@ -87,15 +84,6 @@ public class UniformController {
     }
 
     /**
-     * Metodo que inserta un listener de texto de Texfield
-     * a un spinner.
-     */
-    private void setTextFieldListenerToSpinner(Spinner spinner) {
-        TextField textField = spinner.getEditor();
-        textField.textProperty().addListener(getListenerForText(textField));
-    }
-
-    /**
      * Metodo que genera un Listener para el cambio de
      * texto de un TextField.
      */
@@ -121,10 +109,10 @@ public class UniformController {
         return spnB.getText();
     }
 
-    /*
+    /**
      * Metodo que verifica si los valores del modelo son validos.
      */
-    public boolean hasValidValues() throws NumberFormatException {
+    public void validateValues() throws NumberFormatException {
         if (!spnA.getText().matches(DoubleUtils.regex) || !spnB.getText().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para los valores A y B.");
         if (Double.parseDouble(spnA.getText()) > Double.parseDouble(spnB.getText()))
@@ -133,10 +121,5 @@ public class UniformController {
             throw new NumberFormatException("A no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
         if (Double.parseDouble(spnB.getText()) > SPINNER_DOUBLE_MAX_VALUE)
             throw new NumberFormatException("B no puede ser mayor que " + SPINNER_DOUBLE_MAX_VALUE);
-        if (Double.parseDouble(spnA.getText()) < SPINNER_DOUBLE_MIN_VALUE)
-            throw new NumberFormatException("A no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
-        if (Double.parseDouble(spnB.getText()) < SPINNER_DOUBLE_MIN_VALUE)
-            throw new NumberFormatException("B no puede ser menor que " + SPINNER_DOUBLE_MIN_VALUE);
-        return true;
     }
 }
