@@ -6,8 +6,11 @@ import java.text.DecimalFormat;
 
 public class DoubleUtils {
 
+    private static final String INFINITY = "Infinity";
+    private static final String NAN = "NaN";
 
-    public static final String regex="^[+-]?(([1-9]\\d*)|0)(\\.\\d+)?$";
+    public static final String regex = "^[+-]?(([1-9]\\d*)|0)(\\.\\d+)?$";
+
     /**
      * Metodo que redondea un double en una
      * cierta cantidad de decimales.
@@ -20,11 +23,21 @@ public class DoubleUtils {
         return bd.doubleValue();
     }
 
+    public static String roundString(double value, int places) {
+        if (Double.isInfinite(value)) {
+            return INFINITY;
+        } else if (Double.isNaN(value)) {
+            return NAN;
+        } else {
+            return getDoubleStringFormat(value, places);
+        }
+    }
+
     /**
      * Metodo que devuelve un double formateado en
      * string con cuatro decimales.
      */
-    public static String getDoubleWithFourPlaces(double value){
+    public static String getDoubleWithFourPlaces(double value) {
         return getDoubleStringFormat(value, 4);
     }
 
@@ -32,7 +45,7 @@ public class DoubleUtils {
      * Metodo que formatea un double en un string
      * con una cierta cantidad de decimales.
      */
-    public static String getDoubleStringFormat(double value, int places) {
+    private static String getDoubleStringFormat(double value, int places) {
         DecimalFormat df = new DecimalFormat(getDoubleFormatPattern(places));
         return df.format(round(value, places));
 

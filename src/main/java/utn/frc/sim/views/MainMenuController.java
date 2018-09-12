@@ -335,15 +335,18 @@ public class MainMenuController {
 
         setExpectedChiValue(expectedChi);
         setActualChiValue(actualChi);
-        setHypothesis(actualChi < expectedChi);
+        setHypothesis(actualChi, expectedChi);
     }
 
     /**
      * Metodo que setea el valor del label de hipostesis segun
      * se rechazo o no.
      */
-    private void setHypothesis(boolean notRejected) {
-        if (notRejected) {
+    private void setHypothesis(double actualChi, double expectedChi) {
+
+        if (Double.isNaN(actualChi)){
+            lblHypothesis.setText("NaN");
+        } else if (actualChi < expectedChi) {
             lblHypothesis.setText(HO_ACCEPTED);
         } else {
             lblHypothesis.setText(HO_REJECTED);
@@ -355,7 +358,7 @@ public class MainMenuController {
      * de chi actual.
      */
     private void setActualChiValue(double actualChi) {
-        lblActual.setText(DoubleUtils.getDoubleStringFormat(actualChi, PLACES));
+        lblActual.setText(DoubleUtils.roundString(actualChi, PLACES));
     }
 
     /**
@@ -363,7 +366,7 @@ public class MainMenuController {
      * de chi esperado.
      */
     private void setExpectedChiValue(double expectedChi) {
-        lblExpected.setText(DoubleUtils.getDoubleStringFormat(expectedChi, PLACES));
+        lblExpected.setText(DoubleUtils.roundString(expectedChi, PLACES));
     }
 
     /**
@@ -576,6 +579,7 @@ public class MainMenuController {
         final Stage dialog = new Stage();
         Scene scene = new Scene(parent);
         dialog.setScene(scene);
+        dialog.setResizable(Boolean.FALSE);
         dialog.initModality(Modality.WINDOW_MODAL);
         dialog.show();
     }
@@ -588,7 +592,7 @@ public class MainMenuController {
         alert.showAndWait();
     }
 
-    public void validateValues() throws NumberFormatException {
+    private void validateValues() throws NumberFormatException {
         if (!spnAmountOfNumbers.getText().matches(DoubleUtils.regex) || !spnAmountOfIntervals.getText().matches(DoubleUtils.regex))
             throw new NumberFormatException("Se debe ingresar un numero con formato valido para la cantidad de numeros y los intervalos.");
         if (Double.parseDouble(spnAmountOfNumbers.getText()) > MAX_AMOUNT_NUMBERS)

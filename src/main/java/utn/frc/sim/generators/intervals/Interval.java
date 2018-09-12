@@ -68,7 +68,7 @@ public class Interval {
     }
 
     private String getDisplayable(double value) {
-        return DoubleUtils.getDoubleStringFormat(value, 5);
+        return DoubleUtils.roundString(value, 5);
     }
 
 }
